@@ -9,10 +9,13 @@ input_train_ds = pd.read_csv('./train.csv', header=0)
 input_test_ds = pd.read_csv('./test.csv', header=0)
 ###
 # Columns that are taking into concider
-valuable_values = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare"]
+valuable_values = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
+# valuable_values = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare"]
 
 def prepare_titanic_data (input_data):
     input_data['Sex'] = input_data['Sex'].map({'female': 0, 'male': 1}).astype(int)
+    input_data["Embarked"] = input_data["Embarked"].fillna('S')
+    input_data['Embarked'] = input_data['Embarked'].map({'C': 3, 'Q': 2, 'S': 1}).astype(int)
     ####################
     # Filling age gaps
     train_median_ages = np.zeros((2, 3, 7))
@@ -47,8 +50,8 @@ test_data = prepare_titanic_data(input_test_ds)
 forest = RandomForestClassifier(n_estimators=100)
 
 #"Pclass", "Sex", "Age", "SibSp", "Parch", "Fare"
-# scores = cross_val_score(forest, train_data[valuable_values], train_data["Survived"], cv=3)
-# print(scores.mean())
+scores = cross_val_score(forest, train_data[valuable_values], train_data["Survived"], cv=3)
+print(scores.mean())
 
 forest.fit(train_data[valuable_values], train_data["Survived"])
 predictions = forest.predict(test_data[valuable_values])
